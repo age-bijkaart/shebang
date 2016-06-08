@@ -1,6 +1,6 @@
 all: push
 commit:
-	git commit -a
+	git commit -a || true
 push: commit
-	git push master
+	git push master || true
 
