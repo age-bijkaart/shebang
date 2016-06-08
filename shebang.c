@@ -1,4 +1,5 @@
-/* A program that uses the 'shebang' ('#!' at the beginning of the first line of a file) mechanism.
+/* 
+ * A program that uses the 'shebang' ('#!' at the beginning of the first line of a file) mechanism.
  *
  * Usage:
  * 
