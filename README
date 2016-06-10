@@ -1,0 +1,42 @@
+A program for use with the 'shebang' ('#!' at the beginning of the first line of a file) mechanism.
+ 
+Usage: the program 'shebang' is only useful to process a 'shebang' file which looks as shown below:
+ 
+  ----------------------------------
+  #!/path/to/shebang program arg..
+  rest
+  of
+  file
+  ..
+  ----------------------------------
+ 
+where each arg is either 
+- a word not starting with '$'
+- a parameter of the form $D where D is in 0..9, $n refers to the n'th argument of the command
+- the special 'filename' $< which refers to (the contents of) the rest of the file
+ 
+The 'shebang' program processes a file as above, it copies the rest of the file in a temporary file
+and then forks and execs 'program arg'.. where each arg corresponds to an argument mentioned in the
+'shebang' line.
+
+Thus it allows to run programs from 'shebang' files that do not process standard input in a standard
+way or that need more arguments/options than 'env(1)' allows. 
+An example is 'phantomjs http://phantomjs.org/:' which can now be run from a shebang file like this.
+ 
+Name of the file below: http-grab
+
+  ----------------------------------
+  #!/path/to/shebang phantomjs $< $1
+  .. js script that grabs the contents of a url 
+  ----------------------------------
+
+  ./http-grab url
+
+will eventually execute
+ 
+  phantomjs /tmp/$$ url
+
+where /tmp/$$ refers to a temporary file containing all but the first line of the shebang file. Once
+phantomjs is finished, /tmp/$$ will be deleted.
+
+

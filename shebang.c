@@ -1,42 +1,7 @@
-/* 
- * A program that uses the 'shebang' ('#!' at the beginning of the first line of a file) mechanism.
- *
- * Usage:
- * 
- * The program 'shebang' is only useful to process a 'shebang' file which looks as shown below:
- *
- * ----------------------------------
- * #!/path/to/shebang program arg..
- * rest
- * of
- * file
- * ..
- * ----------------------------------
- *
- * where each arg is either 
- * - a word not starting with '$'
- * - a parameter of the form $D where D is in 0..9
- * - a:w
- *
- * When 'shebang' processes a file as above, it copies the rest of the file in 'filename' and then 
- * execs 'program arg1 .. argn'. Presumably, one of the program arguments will be 'filename'.
- * Thus it allows to run programs from 'shebang' files that do not process standard input in a reasonable
- * way or need more options than 'env(1)' allows. An example is 'phantomjs http://phantomjs.org/:' which can 
- * now be run from a shebang file like this.
- *
- * Name of the file below: http-grab
- * ----------------------------------
- * #!/path/to/shebang
- * script.js phantomjs script.js
- * .. js script that grabs the contents of a url 
- * ----------------------------------
- *
- * ./http-grab url
- * 
- * will eventually execute
- *
- * phantomjs script.js url
- */
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 /* realloc, exit */
 #include <stdlib.h>
@@ -55,6 +20,17 @@
 /* for error() */
 #include <error.h>
 #include <errno.h>
+
+/*
+ * From: https://stackoverflow.com/questions/10813538/shebang-line-limit-in-bash-and-linux-kernel:
+ * man execve: "A maximum line length of 127 characters is allowed for the first line in a #!
+ * executable shell script." It's limited in the kernel by BINPRM_BUF_SIZE, set in
+ * include/linux/binfmts.h.
+ * 
+ * Thus:  +2 for '\n' and '\0', beter be safe than sorry 
+ * */
+char bug[BINPRM_BUF_SIZE+2];
+
 
 /* Argv, argc are as follows (if shebang is called from a shebang file):
  *
