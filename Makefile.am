@@ -1,5 +1,5 @@
 # $Id: Makefile.am,v 1.114 2008/08/28 13:57:02 dvermeir Exp $
-AM_CLAGS = -g -Wall
+AM_CFLAGS = -g -Wall
 # The following line ensures that #include <dvutil/bla.h> will be found
 # correctly when installing from another directory than the source
 # directory. This is necessary, e.g. for "make distcheck" to succeed.
