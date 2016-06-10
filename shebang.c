@@ -6,13 +6,17 @@
  * The program 'shebang' is only useful to process a 'shebang' file which looks as shown below:
  *
  * ----------------------------------
- * #!/path/to/shebang
- * filename program arg1 arg2 .. argn
+ * #!/path/to/shebang program arg..
  * rest
  * of
  * file
  * ..
  * ----------------------------------
+ *
+ * where each arg is either 
+ * - a word not starting with '$'
+ * - a parameter of the form $D where D is in 0..9
+ * - a:w
  *
  * When 'shebang' processes a file as above, it copies the rest of the file in 'filename' and then 
  * execs 'program arg1 .. argn'. Presumably, one of the program arguments will be 'filename'.
