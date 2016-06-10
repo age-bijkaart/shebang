@@ -16,13 +16,13 @@
 /* exit */
 #include <stdlib.h>
 
-/* for isspace() */
+/* isspace */
 #include <ctype.h>
 
-/* read(), write(), close */
+/* read, write, close */
 #include <unistd.h>
 
-/* for open() */
+/* for open */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -30,7 +30,7 @@
 /* wait */
 #include <sys/wait.h>
 
-/* for error() */
+/* for error */
 #include <error.h>
 #include <errno.h>
 
@@ -76,7 +76,6 @@ main(int argc, char *argv[]) {
     int n_words = 0; /* size of the array */
     char* line = argv[1];
 
-
     int in_whitespace = 1; /* mode while processing line */
     for (int i=0; line[i]; ++i) { 
       if (isspace(line[i])) {
@@ -104,7 +103,7 @@ main(int argc, char *argv[]) {
      --------------------------------------------------------------------------------------------
    */
 
-  char tmp_filename[20];
+  char tmp_filename[30];
   if (sprintf(tmp_filename, "/tmp/shebang.%d", getpid()) < 0)
     error(1, 0, "%s: cannot create temporary file_name", tmp_filename);
 
