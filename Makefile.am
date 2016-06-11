@@ -9,12 +9,10 @@ bin_PROGRAMS= shebang
 
 shebang_SOURCES = shebang.c
 
-SUFFIXES=%.sh
-%:	%.sh
-	cat $< >$@
-	chmod +x $@
+man1_MANS = shebang.man
 
-EXTRA_DIST = 
+
+EXTRA_DIST = http-grab.sh
   
 # 
 check_PROGRAMS	= 

@@ -1,3 +1,4 @@
+#undef DEBUG
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -12,6 +13,9 @@
 
 /* fprintf, sprintf */ 
 #include <stdio.h>
+
+/* memcpy */
+#include <string.h>
 
 /* exit */
 #include <stdlib.h>
@@ -34,15 +38,18 @@
 #include <error.h>
 #include <errno.h>
 
+#ifdef DEBUG
 void
-print_cmdline(FILE* file, const char* words[]) {
-  for (int i=0; (words[i]); ++i) {
+print_array(FILE* file, int lineno, const char* prompt,  const char* words[], int size) {
+  fprintf(file, "%d: %s:", lineno, prompt);
+  for (int i=0; (i < size); ++i) {
     if (i>0)
       fprintf(file, " ");
-    fprintf(file, "%s", words[i]);
+    fprintf(file, "%s", (words[i] ? words[i] : "NULL"));
   }
   fprintf(file, "\n");
 }
+#endif
 
 /* Argv, argc are as follows (if shebang is called from a shebang file):
  *
@@ -65,15 +72,15 @@ main(int argc, char *argv[]) {
   if (argc < 3)
     error(1, 0, "need at least 3 arguments but only got %d\n", argc);
 
+  const char* words[BINPRM_BUF_SIZE]; /* array of line 1, last word is 0 for execvp */
+  int n_words = 0; /* size of the array */
+
   /* --------------------------------------------------------------------------------------------
-     Step 1: split argv[1], the command line into words
+     Step 1: split argv[1] into words, adding '\0' at end of each word in argv[1]
      --------------------------------------------------------------------------------------------
    */
 
-  const char* words[BINPRM_BUF_SIZE]; /* array of line 1, last word is 0 for execvp */
-
   {
-    int n_words = 0; /* size of the array */
     char* line = argv[1];
 
     int in_whitespace = 1; /* mode while processing line */
@@ -131,8 +138,11 @@ main(int argc, char *argv[]) {
             first_line_read = 1;
           }
         }
-        if (! first_line_read)
-          offset = n; /* can happen with small reads */
+        /* Can happen with small reads or very long first line, but the latter is unlikely since its length
+         * is limited to BINPRM_BUF_SIZE 
+         */
+        if (! first_line_read) 
+          offset = n;
       }
       else
         offset = 0;
@@ -150,27 +160,48 @@ main(int argc, char *argv[]) {
   }
 
   /* --------------------------------------------------------------------------------------------
-     Step 3: replace $1, .. $< in words[] array
+     Step 3: replace $1, .. $< in words[] array and append any unused argv elements to words
      --------------------------------------------------------------------------------------------
    */
 
-  for (int i=0; (words[i]); ++i) {
-    if (words[i][0] == '$') {
-      if ((words[i][1] == '\0') || (words[i][2] != '\0'))
-        error(1, 0, "illegal parameter: %s", words[i]);
-      if (isdigit(words[i][1])) { 
-        int pos = (words[i][1] - '0') + 2;
-        if (pos >= argc)
-          error(1, 0, "no such parameter: %s", words[i]);
-        words[i] = argv[pos];
+  {
+    /* copy of argv to keep track of 'used' arguments from the command line, 0 means used */
+    char** argv_unused = malloc(argc * sizeof(char*));
+    memcpy(argv_unused, argv, argc * sizeof(char*));
+    argv_unused[0] = argv_unused[1] = argv_unused[2] = 0;
+
+    for (int i=0; (words[i]); ++i) {
+      if (words[i][0] == '$') {
+        if ((words[i][1] == '\0') || (words[i][2] != '\0')) {
+          free(argv_unused);
+          error(1, 0, "illegal parameter: %s", words[i]);
+        }
+        if (isdigit(words[i][1])) { 
+          int pos = (words[i][1] - '0') + 2;
+          if (pos < argc) {
+            words[i] = argv[pos]; 
+            argv_unused[pos] = 0;
+          }
+          else
+            /* 1st arg 0 means no exit, just message */
+            error(0, 0, "no such parameter: %s", words[i]);
+        }
+        if (words[i][1] == '<')
+          words[i] = tmp_filename;
       }
-      if (words[i][1] == '<')
-        words[i] = tmp_filename;
     }
+
+    /* Append all unused argv[] elements to words */
+    for (int i=0; (i<argc); ++i)
+      if (argv_unused[i])
+        words[n_words++] = argv[i];
+    words[n_words] = 0; /* ensure 0 pointer at end, for execvp etc. */
+
+    free(argv_unused);
   }
 
 #ifdef DEBUG
-  print_cmdline(stdout, words);
+  print_array(stdout, __LINE__,"words",  words, n_words);
 #endif
 
   /* --------------------------------------------------------------------------------------------

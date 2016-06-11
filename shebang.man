@@ -1,0 +1,107 @@
+.TH SHEBANG 1
+.SH NAME
+shebang \- alternative program to use after \fB#!\fR ('shebang') in scripts
+
+.SH SYNOPSIS
+.B #!/path/to/shebang 
+.IR executable
+.IR arg ...
+.SH DESCRIPTION
+.B Shebang
+is intended to be used on the first line of a shebang script, i.e. a script whose first line starts
+with \fB#!\fR, see e.g. \fBhttps://en.wikipedia.org/wiki/Shebang_(Unix)\fR.
+The first line should look like this:
+.PP
+.fn
+.RS
+\fB#!/path/to/shebang\fR \fIexecutable\fR \fIarg\fP...
+.fi
+.RE
+.PP
+where \fIexecutable\fR refers to an executable file that is reachable from a directory in \fI$PATH\fR. 
+.PP
+Each \fIarg\fR is either a word or of the form \fB$[1-9<]\fR. The latter are interpreted as
+either command line arguments (in the case of \fB$[1-9]\fR) or, in case of \fB$<\fR as the name of a temporary
+file that contains the rest of the script, i.e. from the second line onwards. 
+.PP 
+Thus \fBshebang\fR will construct a new command from the first line of the script. The new command
+will be
+.PP
+.fn
+.RS
+\fBexecutable\fR \fIarg'\fR.. [\fIrest_of_args\fR]
+.RE
+.fi
+.PP
+where each \fIarg'\fR corresponds to the translation of the the corresponding original \fIarg\fP as
+described above. 
+The \fIrest_of_args\fR will contain any unused arguments from the original command
+line, if any.
+.SH OPTIONS
+.TP
+.BR $i
+Replace by the \fIi\fR'th argument on the command line that activated the script, with 0<i<=9.
+.TP
+.BR $<
+Replace by the name of a temporary file containing the rest of the script, i.e. all except the first
+line.
+.SH EXIT STATUS
+Normally, the exit status of calling the script will be the exit status of running the \fBexecutable\fR command
+as described above. Any errors in the preparation of this command will cause \fBshebang\fR to
+exit prematurely with a status of 1.
+.SH EXAMPLES
+The following script file is called \fIhttp-grab\fR:
+.PP
+.nf
+.RS
+#!/path/to/shebang phantomjs $< $1
+\fI
+var args = require('system').args;
+if (args.length == 2) 
+  url = args[1];
+else {
+  console.log("usage: " + args[0] + " url");
+  phantom.exit(1);
+}
+
+var page = require('webpage').create();
+page.open(url, function (status) { 
+  if (status=='success') {
+    console.log(page.content); 
+    phantom.exit(0); 
+  }
+  else
+    phantom.exit(2);
+});
+\fR
+.RE
+.fi
+.PP
+When it is executed using
+.PP
+.nf
+.RS
+http-grab 'http://127.0.0.1:8080'
+.RE
+.fi
+.PP
+the actual command executed will be
+.PP
+.nf
+.RS
+phantomjs /tmp/shebang.XXXXX 'http://127.0.0.1:8080'
+.RE
+.fi
+.PP
+where \f/tmp/shebang.XXXXX\fR is a temporary file containing the javascript part of \fIhttp-grab\fR,
+i.e. all of the file \fIhttp-grab\fP except the first line. Note that \fIXXXXX\fR is a 'random' number,
+i.e. the process ID of the \fBshebang\fP process.
+.PP
+After the execution, the temporary file \fI/tmp/shebang.XXXXX\fR will be removed. The
+exit status of the script will be the exit status of the \fIphantomjs\fR command.
+.SH SEE ALSO
+env(1), fork(3), execvp(3)
+
+
+
+
