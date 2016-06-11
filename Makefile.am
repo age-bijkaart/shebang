@@ -5,6 +5,11 @@ AM_CFLAGS = -g -Wall
 # directory. This is necessary, e.g. for "make distcheck" to succeed.
 AM_CPPFLAGS=
 #
+SUFFIXES=%.sh
+%:	%.sh
+	cat $< >$@
+	chmod +x $@
+
 bin_PROGRAMS= shebang 
 
 shebang_SOURCES = shebang.c
@@ -12,11 +17,9 @@ shebang_SOURCES = shebang.c
 man1_MANS = shebang.man
 dist_man_MANS = shebang.man
 
-EXTRA_DIST = http-grab.sh
+EXTRA_DIST = http-grab.sh test1.sh
   
 # 
-check_PROGRAMS	= 
-
 # 
 # common directives for all test programs
 #
@@ -24,8 +27,8 @@ LDADD =
 AM_LDFLAGS =
 # 
 #
-TESTS = 
-
+TESTS = test1
+# TESTS_ENVIRONMENT = cd $(srcdir) &&
 # 
 noinst_SCRIPTS = 
 
