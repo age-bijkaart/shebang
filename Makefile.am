@@ -10,7 +10,7 @@ bin_PROGRAMS= shebang
 shebang_SOURCES = shebang.c
 
 man1_MANS = shebang.man
-
+dist_man_MANS = shebang.man
 
 EXTRA_DIST = http-grab.sh
   

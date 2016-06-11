@@ -25,6 +25,7 @@ AC_CHECK_HEADERS([stdlib.h ctype.h unistd.h sys/types.h sys/stat.h fcntl.h error
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
+AC_FUNC_MALLOC
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
 

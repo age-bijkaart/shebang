@@ -1,3 +1,5 @@
+[ See also the man page in shebang.man or 'man 1 shebang' after installation. ]
+
 A program for use with the 'shebang' ('#!' at the beginning of the first line of a file) mechanism.
  
 Usage: the program 'shebang' is only useful to process a 'shebang' file which looks as shown below:
