@@ -74,7 +74,8 @@ EXAMPLES
                   phantom.exit(2); });
 
        When it is executed using
-              http-grab'http://127.0.0.1:8080'
+
+              http-grab 'http://127.0.0.1:8080'
 
        the actual command executed will be
 

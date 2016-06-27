@@ -116,8 +116,9 @@ page.open(url, function (status) {
 .RE
 .PP
 When it is executed using
+.PP
 .RS
-.IR http-grab 'http://127.0.0.1:8080'
+.IR http-grab " 'http://127.0.0.1:8080'"
 .RE
 .PP
 the actual command executed will be
