@@ -1,0 +1,153 @@
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH @PACKAGE@ 1 @DATE@ "@PACKAGE_STRING@"
+.SH NAME
+shebang \- alternative (to 
+.I env
+) program to use after 
+.B #!
+('shebang') in scripts
+.SH SYNOPSIS
+.B #!/path/to/shebang 
+.I program
+.IR arg "..."
+.SH DESCRIPTION
+.B Shebang
+is intended to be used on the first line of a shebang script, i.e. a text file whose first line starts
+with 
+.BR #! ,
+see e.g. 
+.URL https://en.wikipedia.org/wiki/Shebang_(Unix) wikipedia .
+.PP
+Common examples include bash scripts that usually have
+.B #!/bin/bash
+as a first line.
+.PP
+The first line of the shebang script should look like this:
+.PP
+.RS
+.B #!/path/to/shebang
+.I program 
+.IR arg ...
+.RE
+.PP
+where 
+.I program 
+refers to an executable file that is reachable from a directory in 
+.I $PATH.
+.PP
+Each 
+.I arg 
+is either a word or of the form 
+.B "$[1-9<]."
+The latter are interpreted as either original command line arguments (in the case of 
+.BR $[1-9] )
+or, in case of 
+.B $< 
+, as the name of a temporary file that contains the rest of the script, i.e. from the second line onwards. 
+.PP 
+Thus 
+.B shebang
+will construct a new command from the original command line and the first line of the script. The new command will be
+.PP
+.RS
+.B program 
+.IR arg \'...  
+[
+.I rest_of_args
+]
+.RE
+.PP
+where each 
+.IR arg '
+is the result of the translation of the corresponding 
+.I arg
+in the first line of the script, as described above. 
+The 
+.I rest_of_args
+is a sequence containing any unused arguments from the original command line.
+.SH OPTIONS
+.TP
+.B $i
+Replace by the 
+.IR i 'th
+argument on the command line that activated the script, with 0<i<=9.
+.TP
+.B $<
+Replace by the name of a temporary file containing the rest of the script, i.e. all except the first
+line.
+.TP
+.B " "
+Any command line arguments not mentioned in the first line of the script will be appended to the new 
+.B program
+command line.
+.SH EXIT STATUS
+Normally, the exit status of calling the script will be the exit status of running the transformed
+.B program
+command line as described above. Any errors in the preparation of this command will cause 
+.B shebang
+to exit prematurely with a status of 1.
+.SH EXAMPLES
+The following script, which is included in the distribution, is called 
+.IR http-grab :
+.PP
+.RS
+#!/usr/local/bin/shebang phantomjs $< $1
+
+var args = require('system').args;
+if (args.length == 2) 
+  url = args[1];
+else {
+  console.log("usage: " + args[0] + " url");
+  phantom.exit(1);
+}
+
+var page = require('webpage').create();
+page.open(url, function (status) { 
+  if (status=='success') {
+    console.log(page.content); 
+    phantom.exit(0); 
+  }
+  else
+    phantom.exit(2);
+});
+.RE
+.PP
+When it is executed using
+.RS
+.IR http-grab 'http://127.0.0.1:8080'
+.RE
+.PP
+the actual command executed will be
+.PP
+.RS
+phantomjs /tmp/shebang.XXXXX 'http://127.0.0.1:8080'
+.RE
+.PP
+where 
+.I /tmp/shebang.XXXXX 
+is a temporary file containing the javascript part of 
+.IR http-grab ,
+i.e. all of the file 
+.I http-grab
+except the first line. Note that 
+.I XXXXX 
+is a 'random' number, i.e. the process ID of the 
+.B shebang 
+process.
+.PP
+After the execution, the temporary file 
+.I /tmp/shebang.XXXXX
+will be removed. The exit status of the script will be the exit status of the 
+.I phantomjs 
+command.
+.SH AUTHORS
+@AUTHORS@
+.SH SEE ALSO
+env(1), fork(3), execvp(3)
+
+
+
+

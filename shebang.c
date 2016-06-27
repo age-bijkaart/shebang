@@ -72,7 +72,7 @@ main(int argc, char *argv[]) {
   if (argc < 3)
     error(1, 0, "need at least 3 arguments but only got %d\n", argc);
 
-  const char* words[BINPRM_BUF_SIZE]; /* array of line 1, last word is 0 for execvp */
+  const char* words[BINPRM_BUF_SIZE]; /* array of line 1, last word will be 0 for execvp */
   int n_words = 0; /* size of the array */
 
   /* --------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ main(int argc, char *argv[]) {
    */
 
   char tmp_filename[30];
-  if (sprintf(tmp_filename, "/tmp/shebang.%d", getpid()) < 0)
+  if (sprintf(tmp_filename, "/tmp/%s-%s.%d", PACKAGE, PACKAGE_VERSION, getpid()) < 0)
     error(1, 0, "%s: cannot create temporary file_name", tmp_filename);
 
   {
@@ -172,6 +172,7 @@ main(int argc, char *argv[]) {
 
     for (int i=0; (words[i]); ++i) {
       if (words[i][0] == '$') {
+        /* check words[i] is of form '$X' */
         if ((words[i][1] == '\0') || (words[i][2] != '\0')) {
           free(argv_unused);
           error(1, 0, "illegal parameter: %s", words[i]);
@@ -217,7 +218,7 @@ main(int argc, char *argv[]) {
     /* execvp should transfer PATH etc */
     if ( execvp(words[0], (char * const*)words) < 0)
       error(1, errno, "exec %s failed", words[0]);
-    return 1;
+    return 1; /* execvp should not return, thus return error code 1 */
   }
   else { /* parent, wait for child to die and then delete tmp_filename */
     int status;
@@ -226,7 +227,6 @@ main(int argc, char *argv[]) {
     
     if (unlink(tmp_filename) != 0)
       error(1, errno, "%s: cannot delete", tmp_filename);
-      
     
     exit(WEXITSTATUS(status));
   }

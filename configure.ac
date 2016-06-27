@@ -32,5 +32,12 @@ AC_FUNC_FORK
 AC_SUBST([AM_CFLAGS])
 # AC_SUBST([AM_LDFLAGS])
 
-AC_CONFIG_FILES([Makefile])
+dnl Make @DATE@ available in shebang.in 
+DATE=`date +"%Y-%m-%d"`
+AC_SUBST(DATE)
+dnl Make @AUTHORS@ available in shebang.in 
+AUTHORS=`cat ${srcdir}/AUTHORS`
+AC_SUBST(AUTHORS)
+
+AC_CONFIG_FILES([Makefile shebang.man])
 AC_OUTPUT

@@ -17,7 +17,8 @@ shebang_SOURCES = shebang.c
 man1_MANS = shebang.man
 dist_man_MANS = shebang.man
 
-EXTRA_DIST = http-grab.sh test1.sh
+EXTRA_DIST = http-grab.sh \
+						 test1.sh test2.sh test3.sh
   
 # 
 # 
@@ -27,7 +28,7 @@ LDADD =
 AM_LDFLAGS =
 # 
 #
-TESTS = test1
+TESTS = test1 test2 test3
 # TESTS_ENVIRONMENT = cd $(srcdir) &&
 # 
 noinst_SCRIPTS = 
