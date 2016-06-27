@@ -1,98 +1,88 @@
-shebang(1)                                   General Commands Manual                                  shebang(1)
 
-NAME
-       shebang  -  alternative (to env ) program to use after #!  ('shebang') in
-       scripts
+     NAME
+            shebang - alternative (to env ) program to use after #!  ('shebang') in scripts
 
-SYNOPSIS
-       #!/path/to/shebang program arg...
+     SYNOPSIS
+            #!/path/to/shebang program arg...
 
-DESCRIPTION
-       Shebang is intended to be used on the first line  of  a  shebang  script,
-       i.e. a text file whose first line starts with #!, see e.g.  wikipedia
-       ⟨https://en.wikipedia.org/wiki/Shebang_(Unix)⟩.
+     DESCRIPTION
+            Shebang  is  intended to be used on the first line of a shebang script, i.e. a text
+            file whose first line starts with #!, see e.g.  wikipedia ⟨https://
+            en.wikipedia.org/wiki/Shebang_(Unix)⟩.
 
-       Common examples include bash scripts that usually have #!/bin/bash  as  a
-       first line.
+            Common examples include bash scripts that usually have #!/bin/bash as a first line.
 
-       The first line of the shebang script should look like this:
+            The first line of the shebang script should look like this:
 
-              #!/path/to/shebang program arg...
+                   #!/path/to/shebang program arg...
 
-       where  program  refers  to  an  executable  file that is reachable from a
-       directory in $PATH.
+            where  program  refers  to an executable file that is reachable from a directory in
+            $PATH.
 
-       Each arg is either a word or of the form $[1-9<].  The latter are  inter‐
-       preted  as either original command line arguments (in the case of $[1-9])
-       or, in case of $< , as the name of a temporary  file  that  contains  the
-       rest of the script, i.e. from the second line onwards.
+            Each arg is either a word or of the form $[1-9<].  The latter  are  interpreted  as
+            either  original command line arguments (in the case of $[1-9]) or, in case of $< ,
+            as the name of a temporary file that contains the rest of the script, i.e. from the
+            second line onwards.
 
-       Thus  shebang will construct a new command from the original command line
-       and the first line of the script. The new command will be
+            Thus  shebang  will  construct a new command from the original command line and the
+            first line of the script. The new command will be
 
-              program arg´...  [ rest_of_args ]
+                   program arg´...  [ rest_of_args ]
 
-       where each arg' is the result of the translation of the corresponding arg
-       in the first line of the script, as described above.  The rest_of_args is
-       a sequence containing any unused  arguments  from  the  original  command
-       line.
+            where each arg' is the result of the translation of the corresponding  arg  in  the
+            first  line of the script, as described above.  The rest_of_args is a sequence con‐
+            taining any unused arguments from the original command line.
 
-OPTIONS
-       $i     Replace  by  the  i'th argument on the command line that activated
-              the script, with 0<i<=9.
+     OPTIONS
+            $i     Replace by the i'th argument on the command line that activated the  script,
+                   with 0<i<=9.
 
-       $<     Replace by the name of a temporary file containing the rest of the
-              script, i.e. all except the first line.
+            $<     Replace  by  the name of a temporary file containing the rest of the script,
+                   i.e. all except the first line.
 
-              Any  command line arguments not mentioned in the first line of the
-              script will be appended to the new program command line.
+                   Any command line arguments not mentioned in the first  line  of  the  script
+                   will be appended to the new program command line.
 
-EXIT STATUS
-       Normally, the exit status of calling the script will be the  exit  status
-       of  running  the transformed program command line as described above. Any
-       errors in the preparation of this command will cause shebang to exit pre‐
-       maturely with a status of 1.
+     EXIT STATUS
+            Normally,  the exit status of calling the script will be the exit status of running
+            the transformed program command line as described above. Any errors in the prepara‐
+            tion of this command will cause shebang to exit prematurely with a status of 1.
 
-EXAMPLES
-       The  following  script,  which is included in the distribution, is called
-       http-grab:
+     EXAMPLES
+            The following script, which is included in the distribution, is called http-grab:
 
-              #!/usr/local/bin/shebang phantomjs $< $1
+                   #!/usr/local/bin/shebang phantomjs $< $1
 
-              var args = require('system').args; if (args.length == 2)
-                url = args[1]; else {
-                console.log("usage: " + args[0] + " url");
-                phantom.exit(1); }
+                   var args = require('system').args; if (args.length == 2)
+                     url = args[1]; else {
+                     console.log("usage: " + args[0] + " url");
+                     phantom.exit(1); }
 
-              var page =  require('webpage').create();  page.open(url,  function
-              (status) {
-                if (status=='success') {
-                  console.log(page.content);
-                  phantom.exit(0);
-                }
-                else
-                  phantom.exit(2); });
+                   var page = require('webpage').create(); page.open(url, function (status) {
+                     if (status=='success') {
+                       console.log(page.content);
+                       phantom.exit(0);
+                     }
+                     else
+                       phantom.exit(2); });
 
-       When it is executed using
-              http-grab'http://127.0.0.1:8080'
+            When it is executed using
+                   http-grab'http://127.0.0.1:8080'
 
-       the actual command executed will be
+            the actual command executed will be
 
-              phantomjs /tmp/shebang.XXXXX 'http://127.0.0.1:8080'
+                   phantomjs /tmp/shebang.XXXXX 'http://127.0.0.1:8080'
 
-       where  /tmp/shebang.XXXXX  is  a temporary file containing the javascript
-       part of http-grab, i.e. all of the file http-grab except the first  line.
-       Note  that XXXXX is a 'random' number, i.e. the process ID of the shebang
-       process.
+            where  /tmp/shebang.XXXXX  is  a  temporary  file containing the javascript part of
+            http-grab, i.e. all of the file http-grab except the first line. Note that XXXXX is
+            a 'random' number, i.e. the process ID of the shebang process.
 
-       After the  execution,  the  temporary  file  /tmp/shebang.XXXXX  will  be
-       removed.  The  exit  status  of the script will be the exit status of the
-       phantomjs command.
+            After  the  execution,  the  temporary file /tmp/shebang.XXXXX will be removed. The
+            exit status of the script will be the exit status of the phantomjs command.
 
-AUTHORS
-       dirk.vermeir.be@gmail.com
+     AUTHORS
+            dirk.vermeir.be@gmail.com
 
-SEE ALSO
-       env(1), fork(3), execvp(3)
+     SEE ALSO
+            env(1), fork(3), execvp(3)
 
-shebang 1.0                                        2016-06-27                                         shebang(1)
