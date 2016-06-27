@@ -1,11 +1,8 @@
-.ll 8i
 .de URL
 \\$2 \(laURL: \\$1 \(ra\\$3
 ..
 .if \n[.g] .mso www.tmac
-.po 0.5i
 .TH @PACKAGE@ 1 @DATE@ "@PACKAGE_STRING@"
-.ll 9i
 .SH NAME
 shebang \- alternative (to 
 .I env

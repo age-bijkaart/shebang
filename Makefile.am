@@ -10,15 +10,20 @@ SUFFIXES=%.sh
 	cat $< >$@
 	chmod +x $@
 
+README: shebang.man
+	MANWIDTH=80 man ${srcdir}/$< >$@
+
 bin_PROGRAMS= shebang 
 
-shebang_SOURCES = shebang.c
+shebang_SOURCES = shebang.c README
 
 man1_MANS = shebang.man
 dist_man_MANS = shebang.man
 
 EXTRA_DIST = http-grab.sh \
 						 test1.sh test2.sh test3.sh
+						 
+
   
 # 
 # 
