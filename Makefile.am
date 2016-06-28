@@ -10,18 +10,23 @@ SUFFIXES=%.sh
 	cat $< >$@
 	chmod +x $@
 
+# This is used to prevent 'make distcheck' complaining about non-deleted README
+dist-hook: README
+	chmod u+w $(distdir) # $(distdir) may not be writable
+	mv README $(distdir)
+
 README: shebang.man
-	MANWIDTH=80 man ${srcdir}/$< >$@
+	MANWIDTH=80 man ${srcdir}/$< >$@ # 80 chars are shown properly in Github
 
 bin_PROGRAMS= shebang 
 
-shebang_SOURCES = shebang.c README
+shebang_SOURCES = shebang.c
 
 man1_MANS = shebang.man
 dist_man_MANS = shebang.man
 
-EXTRA_DIST = http-grab.sh \
-						 test1.sh test2.sh test3.sh
+EXTRA_DIST = README http-grab.sh \
+	test1.sh test2.sh test3.sh
 						 
 
   
