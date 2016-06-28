@@ -6,8 +6,7 @@ AC_INIT([shebang], [1.0], [dirk.vermeir.be@gmail.com])
 AC_CONFIG_SRCDIR([shebang.c])
 AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE([1.9])
-# AM_INIT_AUTOMAKE([1.9 foreign])
+AM_INIT_AUTOMAKE([1.9 foreign])
 AC_LANG([C])
 
 # Checks for header files.
